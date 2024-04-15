@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stock Data and Articles</title>
+<style>
+    /* Add some basic styling */
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+    }
+    .container {
+        max-width: 800px;
+        margin: 50px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    #stockData {
+        margin-bottom: 20px;
+    }
+    .article {
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #ccc;
+    }
+    .article h3 {
+        margin-top: 0;
+    }
+    .update-time {
+        text-align: right;
+        font-size: 12px;
+    }
+    .light {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+    .green-light {
+        background-color: green;
+    }
+    .red-light {
+        background-color: red;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Stock Data and Articles</h2>
+    <form id="searchForm">
+        <label for="symbol">Enter Stock Symbol:</label>
+        <input type="text" id="symbol" name="symbol" required>
+        <label for="exchange">Exchange:</label>
+        <input type="text" id="exchange" name="exchange" required placeholder="e.g., NASDAQ, NYSE">
+        <button type="submit">Search</button>
+    </form>
+    <div id="stockData"></div>
+    <div id="articles"></div>
+    <div class="update-time" id="updateTime"></div>
+    <div class="light" id="priceLight"></div>
+</div>
+
+<script>
+    var currentPrice = 0;
+
+    // Function to fetch stock data from Alpha Vantage API
+    function fetchStockData(symbol, exchange) {
+        var apiKeyAlphaVantage = '_A_7qGp2lIBrlIltwLM9NT2a3myuCp82'; // Your Alpha Vantage API key
+        var apiUrl = 'https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=' + symbol + '&apikey=' + apiKeyAlphaVantage;
+
+        fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+            if (data['Global Quote']) {
+                var stockInfo = data['Global Quote'];
+                var price = parseFloat(stockInfo['05. price']);
+                var output = `
+                    <p>Symbol: ${stockInfo['01. symbol']}</p>
+                    <p>Open: ${stockInfo['02. open']}</p>
+                    <p>High: ${stockInfo['03. high']}</p>
+                    <p>Low: ${stockInfo['04. low']}</p>
+                    <p id="currentPrice">Price: ${price}</p>
+                    <p>Volume: ${stockInfo['06. volume']}</p>
+                    <p>Latest Trading Day: ${stockInfo['07. latest trading day']}</p>
+                    <p>Previous Close: ${stockInfo['08. previous close']}</p>
+                    <p>Change: ${stockInfo['09. change']}</p>
+                    <p>Change Percent: ${stockInfo['10. change percent']}</p>
+                `;
+                document.getElementById('stockData').innerHTML = output;
+
+                // Update price light
+                updatePriceLight(price);
+            } else {
+                document.getElementById('stockData').innerHTML = '<p>Stock data not found for symbol: ' + symbol + '</p>';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching stock data:', error);
+            document.getElementById('stockData').innerHTML = '<p>Error fetching stock data. Please try again later.</p>';
+        });
+    }
+
+    // Function to fetch articles about a stock symbol from News API
+    function fetchStockArticles(symbol) {
+        var apiKeyNewsAPI = '62633b4d-3939-42ed-991d-c96a3d853e85'; // News API key
+        var apiUrl = 'https://newsapi.org/v2/everything?q=' + symbol + '&apiKey=' + apiKeyNewsAPI;
+
+        fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+            var articles = data.articles;
+            if (articles.length > 0) {
+                var output = '<h3>Related Articles:</h3>';
+                articles.slice(0, 5).forEach(article => {
+                    output += `
+                        <div class="article">
+                            <h3>${article.title}</h3>
+                            <p>${article.description}</p>
+                            <p><a href="${article.url}" target="_blank">Read more</a></p>
+                        </div>
+                    `;
+                });
+                document.getElementById('articles').innerHTML = output;
+            } else {
+                document.getElementById('articles').innerHTML = '<p>No articles found for symbol: ' + symbol + '</p>';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching articles:', error);
+            document.getElementById('articles').innerHTML = '<p>Error fetching articles. Please try again later.</p>';
+        });
+    }
+
+    // Update price light based on price change
+    function updatePriceLight(price) {
+        var priceLight = document.getElementById('priceLight');
+        if (currentPrice < price) {
+            priceLight.className = 'light green-light';
+        } else if (currentPrice > price) {
+            priceLight.className = 'light red-light';
+        }
+        currentPrice = price;
+    }
+
+    // Function to handle form submission
+    document.getElementById("searchForm").addEventListener("submit", function(event) {
+        event.preventDefault(); // Prevent the default form submission
+        var symbol = document.getElementById("symbol").value.toUpperCase(); // Get the entered stock symbol
+        var exchange = document.getElementById("exchange").value.toUpperCase(); // Get the entered exchange code
+        var stockSymbol = symbol + '.' + exchange; // Combine symbol and exchange code
+        fetchStockData(stockSymbol);
+        fetchStockArticles(symbol);
+        setInterval(function() {
+            fetchStockData(stockSymbol);
+        }, 60000); // Update stock data every minute (adjust as needed)
+    });
+</script>
+
+</body>
+</html>
