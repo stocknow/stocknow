@@ -1,4 +1,4 @@
-troubleshoot this <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -75,7 +75,7 @@ troubleshoot this <!DOCTYPE html>
 
     // Function to fetch stock data from Alpha Vantage API
     function fetchStockData(symbol, exchange) {
-        var apiKeyAlphaVantage = '_A_7qGp2lIBrlIltwLM9NT2a3myuCp82'; // Your Alpha Vantage API key
+        var apiKeyAlphaVantage = '487ac13f7a814823bd71103c435ea8a1'; // New API key
         var apiUrl = 'https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=' + symbol + '&apikey=' + apiKeyAlphaVantage;
 
         fetch(apiUrl)
@@ -112,7 +112,7 @@ troubleshoot this <!DOCTYPE html>
 
     // Function to fetch articles about a stock symbol from News API
     function fetchStockArticles(symbol) {
-        var apiKeyNewsAPI = '62633b4d-3939-42ed-991d-c96a3d853e85'; // News API key
+        var apiKeyNewsAPI = '487ac13f7a814823bd71103c435ea8a1'; // New API key
         var apiUrl = 'https://newsapi.org/v2/everything?q=' + symbol + '&apiKey=' + apiKeyNewsAPI;
 
         fetch(apiUrl)
