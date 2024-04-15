@@ -74,13 +74,14 @@
     var currentPrice = 0;
 
     // Function to fetch stock data from Alpha Vantage API
-    function fetchStockData(symbol, exchange) {
-        var apiKeyAlphaVantage = '487ac13f7a814823bd71103c435ea8a1'; // New API key
+    function fetchStockData(symbol) {
+        var apiKeyAlphaVantage = '1Q2MOR1N4407OZX8'; // New API key
         var apiUrl = 'https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=' + symbol + '&apikey=' + apiKeyAlphaVantage;
 
         fetch(apiUrl)
         .then(response => response.json())
         .then(data => {
+            console.log(data); // Log the data received from Alpha Vantage API
             if (data['Global Quote']) {
                 var stockInfo = data['Global Quote'];
                 var price = parseFloat(stockInfo['05. price']);
@@ -112,12 +113,13 @@
 
     // Function to fetch articles about a stock symbol from News API
     function fetchStockArticles(symbol) {
-        var apiKeyNewsAPI = '487ac13f7a814823bd71103c435ea8a1'; // New API key
+        var apiKeyNewsAPI = '487ac13f7a814823bd71103c435ea8a1'; // Replace with your News API key
         var apiUrl = 'https://newsapi.org/v2/everything?q=' + symbol + '&apiKey=' + apiKeyNewsAPI;
 
         fetch(apiUrl)
         .then(response => response.json())
         .then(data => {
+            console.log(data); // Log the data received from News API
             var articles = data.articles;
             if (articles.length > 0) {
                 var output = '<h3>Related Articles:</h3>';
@@ -152,7 +154,7 @@
         currentPrice = price;
     }
 
-    // Function to handle form submission
+    // Function to handle form submission when button is clicked
     document.getElementById("searchForm").addEventListener("submit", function(event) {
         event.preventDefault(); // Prevent the default form submission
         var symbol = document.getElementById("symbol").value.toUpperCase(); // Get the entered stock symbol
@@ -164,7 +166,17 @@
             fetchStockData(stockSymbol);
         }, 60000); // Update stock data every minute (adjust as needed)
     });
-</script>
 
+    // Function to handle button click
+    document.querySelector("button[type='submit']").addEventListener("click", function(event) {
+        event.preventDefault(); // Prevent the default form submission
+        var symbol = document.getElementById("symbol").value.toUpperCase(); // Get the entered stock symbol
+        var exchange = document.getElementById("exchange").value.toUpperCase(); // Get the entered exchange code
+        var stockSymbol = symbol + '.' + exchange; // Combine symbol and exchange code
+        fetchStockData(stockSymbol);
+        fetchStockArticles(symbol);
+    });
+
+</script>
 </body>
 </html>
